@@ -6,6 +6,7 @@ edition = "2018"
 license = "Apache-2.0"
 repository = "https://github.com/SOF3/ts-fmt-lite.git"
 homepage = "https://github.com/SOF3/ts-fmt-lite"
+description = "A lightweight formatter for TokenStream"
 
 [dependencies]
 derive_builder = "0.7.2"
