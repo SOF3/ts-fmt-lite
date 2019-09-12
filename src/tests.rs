@@ -36,11 +36,17 @@ fn validate(ts: TokenStream, expect: &str) {
 #[cfg(feature = "naive-wrap")]
 #[test]
 pub fn ident_oper_short() {
-    validate(quote!(a:b:c), "a : b : c");
+    validate(quote!(a: b: c), "a : b : c");
 }
 
 #[cfg(feature = "naive-wrap")]
 #[test]
 pub fn ident_oper_long() {
     validate(quote!(a:b:c:d:), "a : b : c\n: d :");
+}
+
+#[cfg(feature = "naive-wrap")]
+#[test]
+pub fn ident_oper_joint() {
+    validate(quote!(abc :: b ::c::d::), "abc :: b\n:: c :: d\n::");
 }

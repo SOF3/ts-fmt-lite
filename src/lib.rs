@@ -24,6 +24,8 @@ pub fn print<W: Write>(ts: TokenStream, config: Config, w: W) -> Result {
     let mut buf = Buffer {
         config,
         w,
+        joint_oper: String::new(),
+        #[cfg(feature = "naive-wrap")]
         buf: String::new(),
     };
     buf.feed_stream(ts)?;
@@ -34,6 +36,7 @@ pub fn print<W: Write>(ts: TokenStream, config: Config, w: W) -> Result {
 struct Buffer<W: Write> {
     config: Config,
     w: W,
+    joint_oper: String,
     #[cfg(feature = "naive-wrap")]
     buf: String,
 }
@@ -65,10 +68,26 @@ impl<W: Write> Buffer<W> {
     }
 
     fn feed(&mut self, tt: TokenTree) -> Result {
+        if self.joint_oper.len() > 0 {
+            if let TokenTree::Punct(punct) = &tt {
+                self.joint_oper.push(punct.as_char());
+                if punct.spacing() == Spacing::Alone {
+                    self.put(format!("{} ", self.joint_oper))?;
+                    self.joint_oper.clear();
+                }
+                return Ok(());
+            } else {
+                self.put(self.joint_oper.clone())?;
+                self.joint_oper.clear();
+            }
+        }
         match tt {
             TokenTree::Punct(punct) => {
                 let s = match punct.spacing() {
-                    Spacing::Joint => punct.as_char().to_string(),
+                    Spacing::Joint => {
+                        self.joint_oper.push(punct.as_char());
+                        String::new()
+                    }
                     Spacing::Alone => format!("{} ", punct.as_char()),
                 };
                 self.put(s)
